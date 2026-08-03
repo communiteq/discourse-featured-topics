@@ -1,16 +1,17 @@
 {
-  "about_url": "TODO: Put your theme's public repo or Meta topic URL here",
-  "license_url": "TODO: Put your theme's LICENSE URL here",
-  "assets": {},
   "name": "Featured Topics",
   "component": true,
+  "authors": "Manuel Kostka",
+  "about_url": "https://meta.discourse.org/t/featured-topics/217580",
+  "license_url": "https://gitlab.com/manuelkostka/discourse/components/featured-topics/-/blob/main/LICENSE",
+  "theme_version": "1",
+  "minimum_discourse_version": "2026.5.0",
+  "assets": {},
   "modifiers": {
     "topic_thumbnail_sizes": [
-      [375, 375],
-      [500, 500],
-      [750, 750]
+      [300, 300],
+      [450, 450]
     ],
     "serialize_topic_excerpts": true
-  },
-  "minimum_discourse_version": "3.2.0.beta3"
+  }
 }
