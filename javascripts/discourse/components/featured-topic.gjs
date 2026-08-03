@@ -1,132 +1,125 @@
-import Component from '@glimmer/component';
-import { htmlSafe } from '@ember/template';
-import UserLink from 'discourse/components/user-link';
-import avatar from 'discourse/helpers/avatar';
-import { categoryLinkHTML } from 'discourse/helpers/category-link';
-import formatDate from 'discourse/helpers/format-date';
-
-const responsiveRatios = [0.75, 1, 1.5];
-const displayHeight = 500;
-const displayWidth = 500;
+import Component from "@glimmer/component";
+import { on } from "@ember/modifier";
+import { action } from "@ember/object";
+import { trustHTML } from "@ember/template";
+import { wantsNewWindow } from "discourse/lib/intercept-click";
+import { emojiUnescape } from "discourse/lib/text";
+import DiscourseURL from "discourse/lib/url";
+import DUserLink from "discourse/ui-kit/d-user-link";
+import dAvatar from "discourse/ui-kit/helpers/d-avatar";
+import dCategoryLink from "discourse/ui-kit/helpers/d-category-link";
+import dFormatDate from "discourse/ui-kit/helpers/d-format-date";
 
 export default class FeaturedTopic extends Component {
   <template>
-    <a
-      class='featured-topics__topic-container {{this.tag}} {{this.thumbnail}} '
-      href='{{this.unreadUrl}}'
+    {{! eslint-disable ember/template-no-invalid-interactive }}
+    <div
+      class="featured-topics__topic-container
+        {{this.tagName}}
+        {{this.thumbnail}}
+        "
+      {{on "click" this.handleClick}}
     >
 
-      <div class='featured-topics__topic-tag'>
-        <a
-          href={{this.tagUrl}}
-          data-tag-name={{this.tag}}
-          class='discourse-tag box'
-        >{{this.tag}}</a>
-      </div>
+      {{#if this.tag}}
+        <div class="featured-topics__topic-tag">
+          <a
+            href={{this.tagUrl}}
+            data-tag-name={{this.tagName}}
+            class="discourse-tag box"
+          >{{this.tagName}}</a>
+        </div>
+      {{/if}}
 
       {{#if @topic.thumbnails}}
-        <div class='featured-topics__topic-thumbnail'>
+        <div class="featured-topics__topic-thumbnail">
           <img
-            src={{this.fallbackSrc}}
+            src={{@topic.image_url}}
             srcset={{this.srcset}}
-            width={{this.width}}
-            height={{this.height}}
-            loading='lazy'
-            class=''
+            sizes={{this.sizes}}
+            loading="lazy"
           />
         </div>
       {{/if}}
 
-      <div class='featured-topics__topic-details'>
-        <h2 class='topic-title'>{{htmlSafe @topic.title}}</h2>
-        <div class='category-link'>{{categoryLinkHTML @topic.category}}</div>
-        <span class='topic-date'>{{formatDate
+      <div class="featured-topics__topic-details">
+        <h2 class="topic-title">
+          <a href={{this.unreadUrl}}>{{trustHTML this.fancyTitle}}</a>
+        </h2>
+        <div class="category-link">{{dCategoryLink @topic.category}}</div>
+        <span class="topic-date">{{dFormatDate
             @topic.created_at
-            format='tiny'
+            format="tiny"
           }}</span>
         {{#if @topic.hasExcerpt}}
-          <div class='topic-excerpt'>
-            {{htmlSafe @topic.excerpt}}
+          <div class="topic-excerpt">
+            {{trustHTML @topic.excerpt}}
           </div>
         {{/if}}
-        <div class='topic-author'>
-          <UserLink @user={{@topic.creator}}>
-            {{avatar @topic.creator imageSize='medium'}}
-            <span class='topic-author-name'>{{@topic.creator.name}}</span>
-          </UserLink>
+        <div class="topic-author">
+          <DUserLink @user={{@topic.creator}}>
+            {{dAvatar @topic.creator imageSize="small"}}
+            <span class="topic-author-name">{{@topic.creator.name}}</span>
+          </DUserLink>
         </div>
       </div>
 
-    </a>
+    </div>
   </template>
+
+  @action
+  handleClick(event) {
+    if (event.target.closest("a")) {
+      return;
+    }
+
+    if (wantsNewWindow(event)) {
+      return;
+    }
+
+    DiscourseURL.routeTo(this.unreadUrl);
+  }
+
+  get fancyTitle() {
+    return emojiUnescape(this.args.topic.fancy_title);
+  }
 
   get unreadUrl() {
     return this.args.topic.linked_post_number
       ? this.args.topic.urlForPostNumber(this.args.topic.linked_post_number)
-      : this.args.topic.get('lastUnreadUrl');
+      : this.args.topic.get("lastUnreadUrl");
   }
 
   get thumbnail() {
     if (!this.args.topic.thumbnails) {
       return;
     }
-    return 'thumbnail';
+    return "thumbnail";
   }
 
   get tag() {
-    return this.args.topic.tags.find((element) =>
-      settings.featured_tags.split('|').includes(element),
+    return this.args.topic.tags.find((tag) =>
+      settings.featured_tags.split("|").includes(tag.name)
     );
   }
 
+  get tagName() {
+    return this.tag?.name;
+  }
+
   get tagUrl() {
-    return `/tag/${this.tag}`;
-  }
-
-  get original() {
-    return this.args.topic.thumbnails[0];
-  }
-
-  get width() {
-    return this.original.width;
-  }
-
-  get height() {
-    return this.original.height;
-  }
-
-  findBest(maxWidth, maxHeight) {
-    if (!this.args.topic.thumbnails) {
-      return;
-    }
-
-    const largeEnough = this.args.topic.thumbnails.filter((t) => {
-      if (!t.url) {
-        return false;
-      }
-      return t.max_width >= maxHeight;
-    });
-
-    if (largeEnough.lastObject) {
-      return largeEnough.lastObject;
-    }
-
-    return this.original;
-  }
-
-  get fallbackSrc() {
-    return this.findBest(displayWidth, displayHeight).url;
+    return `/tag/${this.tag?.slug}`;
   }
 
   get srcset() {
-    return responsiveRatios
-      .map((ratio) => {
-        const match = this.findBest(
-          ratio * displayHeight,
-          ratio * displayWidth,
-        );
-        return `${match.url} ${ratio}x`;
-      })
-      .join(',');
+    return this.args.topic.thumbnails
+      .filter((t) => t.url && t.width)
+      .map((t) => `${t.url} ${t.width}w`)
+      .join(", ");
+  }
+
+  get sizes() {
+    const columnWidth = Math.round(100 / settings.max_topic_count);
+    return `(max-width: 640px) 100vw, ${columnWidth}vw`;
   }
 }

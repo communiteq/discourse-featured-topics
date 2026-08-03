@@ -1,6 +1,6 @@
-import { apiInitializer } from 'discourse/lib/api';
-import FeaturedTopics from '../components/featured-topics';
+import { apiInitializer } from "discourse/lib/api";
+import FeaturedTopics from "../components/featured-topics";
 
-export default apiInitializer('1.14.0', (api) => {
+export default apiInitializer((api) => {
   api.renderInOutlet(settings.plugin_outlet.trim(), FeaturedTopics);
 });
