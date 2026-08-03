@@ -1,10 +1,32 @@
 .featured-topics {
+  &__topic-container {
+    cursor: pointer;
+  }
+
+  &__topic-tag {
+    .discourse-tag.box {
+      border-radius: var(--d-button-border-radius);
+    }
+  }
+
   a,
   a:visited {
     color: var(--featured-topics-link-color, var(--primary-900));
   }
+
   a:hover {
     color: var(--featured-topics-link-hover-color, var(--primary));
+  }
+
+  .topic-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &-name {
+      font-size: var(--font-down-1);
+      color: var(--primary-high);
+    }
   }
 }
 

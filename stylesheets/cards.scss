@@ -1,9 +1,12 @@
+@use "lib/viewport";
+@use "lib/container";
+
 @if $layout == "cards" {
   .featured-topics {
     &__topics-wrapper {
       display: grid;
       grid-template-columns: repeat($max_topic_count, minmax(150px, 1fr));
-      grid-gap: 1rem;
+      gap: 1rem;
     }
 
     &__topic-container {
@@ -12,59 +15,91 @@
       flex-direction: column;
       height: 400px;
       background-color: var(--secondary);
-      box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 10px 0 rgb(0, 0, 0, 0.2);
+      border-radius: var(--d-border-radius);
+      overflow: hidden;
+      container-type: inline-size;
+      container-name: featured-topic;
+
+      @include container.until(xs, featured-topic) {
+        .topic-title {
+          @include line-clamp(2);
+        }
+
+        .topic-excerpt {
+          display: none;
+        }
+      }
     }
+
     &__topic-container.thumbnail {
       .topic-excerpt {
         display: none;
       }
     }
+
     &__topic-tag {
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
+
       .discourse-tag {
         margin-right: 0;
       }
     }
+
     &__topic-thumbnail {
       height: 45%;
       width: 100%;
+
       img {
         height: 100%;
         width: 100%;
         object-fit: cover;
+        border-radius: 0;
       }
     }
+
     &__topic-details {
       display: flex;
       flex: 1 1 auto;
       flex-direction: column;
       padding: 1rem;
       color: var(--primary);
+
       .topic-author {
         margin-top: auto;
       }
+
       .topic-title {
         @include line-clamp(3);
       }
+
+      .category-link {
+        margin-bottom: 0.5rem;
+      }
+
       .topic-excerpt {
         @include line-clamp(8);
       }
+
       .topic-date {
         display: none;
       }
     }
   }
-  @include breakpoint(mobile-extra-large) {
+
+  @include viewport.until(sm) {
     .featured-topics {
       &__topics-wrapper {
         display: flex;
         flex-direction: column;
       }
+
       &__topic-container {
         height: unset;
       }
+
       &__topic-details {
         .topic-author {
           margin-top: 0.5rem;

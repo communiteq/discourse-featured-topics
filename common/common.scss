@@ -1,10 +1,6 @@
 @import "styles";
-
-// Layouts
 @import "cards";
 @import "list";
-@if $layout == "none" {
-}
 
 // Plugin outlets
 .featured-topics__wrapper.above-main-container {
