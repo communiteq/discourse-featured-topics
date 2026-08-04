@@ -5,7 +5,7 @@
   "about_url": "https://meta.discourse.org/t/featured-topics/217580",
   "license_url": "https://gitlab.com/manuelkostka/discourse/components/featured-topics/-/blob/main/LICENSE",
   "theme_version": "1",
-  "minimum_discourse_version": "2026.5.0",
+  "minimum_discourse_version": "2026.8.0",
   "assets": {},
   "modifiers": {
     "topic_thumbnail_sizes": [
